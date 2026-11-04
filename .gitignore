@@ -226,3 +226,4 @@ __marimo__/
 /build
 .venv/
 *.mda.tar
+.ipynb_checkpoints/
