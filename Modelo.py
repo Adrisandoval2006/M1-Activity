@@ -4,7 +4,7 @@ from Agentes import RobotAgent
  
  
 class CleaningModel(mesa.Model):
-    """Cuarto de width x height con robots de limpieza reactivos."""
+    '''Room of width x height with reactive cleaning robots'''
  
     def __init__(self, dirty_per, max_t, num_agents=7, width=10, height=10,
                  rng=None):
