@@ -5,8 +5,7 @@ DIRECTIONS = [(-1, -1), (-1, 0), (-1, 1),
               (1, -1),  (1, 0),  (1, 1)]
  
 class RobotAgent(mesa.Agent):
-    """Robot reactivo: limpia si su celda esta sucia, si no, se mueve al azar."""
- 
+    '''Reactive robot: cleans if its cell is dirty; otherwise, it moves in a random direction'''
     def __init__(self, model):
         super().__init__(model)
         self.movements = 0
