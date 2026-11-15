@@ -10,7 +10,6 @@ Date: 2026-11-06
 
 import mesa
 from mesa.space import MultiGrid
-from mesa.time import RandomActivation
 from Agent import RobotAgent
 
 class CleaningModel(mesa.Model):
@@ -59,7 +58,6 @@ class CleaningModel(mesa.Model):
         self.currentStep = 0
 
         self.grid = MultiGrid(width, height, torus=False)
-        self.schedule = RandomActivation(self)
 
         totalCells = width * height
         numDirtyCells = int(totalCells * dirtyPercentage / 100)
@@ -75,8 +73,7 @@ class CleaningModel(mesa.Model):
         )
 
         for i in range(numAgents):
-            agent = RobotAgent(i, self)
-            self.schedule.add(agent)
+            agent = RobotAgent(self)
             self.grid.place_agent(agent, (0, 0))
 
         if not self.dirtyCells:
@@ -92,7 +89,7 @@ class CleaningModel(mesa.Model):
     def step(self):
 
         if self.running:
-            self.schedule.step()
+            self.agents.shuffle_do("step")
             self.currentStep += 1
 
             if not self.dirtyCells:

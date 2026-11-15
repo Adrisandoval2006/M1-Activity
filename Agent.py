@@ -23,8 +23,8 @@ class RobotAgent(mesa.Agent):
     # uniqueId: Unique identifier of the robot.
     # model: Model containing the robot.
     # Returns: None.
-    def __init__(self, uniqueId, model):
-        super().__init__(uniqueId, model)
+    def __init__(self, model):
+        super().__init__(model)
         self.movements = 0
 
     # Cleans the current cell or attempts a random movement.
