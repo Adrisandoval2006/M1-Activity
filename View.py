@@ -13,8 +13,8 @@ from matplotlib.colors import ListedColormap
 from matplotlib.widgets import Button
 from Model import CleaningModel
 
-ROOM_WIDTH = 15
-ROOM_HEIGHT = 15
+ROOM_WIDTH = 10
+ROOM_HEIGHT = 10
 DIRTY_PERCENTAGE = 30
 MAX_STEPS = 100
 NUM_AGENTS = 1

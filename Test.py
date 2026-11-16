@@ -1,5 +1,5 @@
 """
-Runs  cleaning robot experiments and saves results.
+Runs cleaning robot experiments and saves results.
 Authors: Adriana Sandoval Santos - A01667445
          Marbella Barba De los Santos - A01660946
          Javier Padilla Marcial - A01660945
