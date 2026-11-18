@@ -1,6 +1,6 @@
 import csv
 import time
-from Modelo import CleaningModel
+from Model import CleaningModel
 
 TESTS = [
     {"name": "1 agente", "num_agents": 1, "width": 10, "height": 10,
@@ -25,23 +25,26 @@ TESTS = [
 
 OUTPUT_FILE = "resultados_pruebas"
 
-COLUMNS = ["test", "run", "seed", "num_agents", "width", "height",
-           "dirty_per", "max_t", "execution_time", "cleaned_percentage",
-           "remaining_dirty_cells", "total_moves", "all_clean",
-           "run_time_s"]
-
+COLUMNS = [
+    "test", "run", "seed", "num_agents",
+    "width", "height", "dirty_per", "max_t",
+    "executionTime", "completionTime", "maxSteps",
+    "cleanedPercentage", "remainingDirtyCells",
+    "totalMoves", "allClean", "run_time_s"
+]
 
 def run_test(test, run, seed):
     start_time = time.perf_counter()
 
     model = CleaningModel(
-        dirty_per=test["dirty_per"],
-        max_t=test["max_t"],
-        num_agents=test["num_agents"],
+        dirtyPercentage=test["dirty_per"],
+        maxSteps=test["max_t"],
+        numAgents=test["num_agents"],
         width=test["width"],
         height=test["height"],
-        rng=seed,
+        seed=seed
     )
+
     while model.running:
         model.step()
 
@@ -56,9 +59,11 @@ def run_test(test, run, seed):
         "height": test["height"],
         "dirty_per": test["dirty_per"],
         "max_t": test["max_t"],
+        "run_time_s": round(run_time, 6)
     }
-    row.update(model.get_stats())
-    row["run_time_s"] = round(run_time, 6)
+
+    row.update(model.getStats())
+
     return row
 
 
