@@ -1,4 +1,5 @@
 import csv
+import time
 from Modelo import CleaningModel
 
 TESTS = [
@@ -10,16 +11,29 @@ TESTS = [
      "dirty_per": 30, "max_t": 100, "repetitions": 100},
     {"name": "10 agentes", "num_agents": 10, "width": 10, "height": 10,
      "dirty_per": 30, "max_t": 100, "repetitions": 100},
+     
+    # Long run
+    {"name": "1 agente long run", "num_agents": 1, "width": 10,
+     "height": 10, "dirty_per": 30, "max_t": 10000, "repetitions": 100},
+    {"name": "5 agentes long run", "num_agents": 5, "width": 10,
+     "height": 10, "dirty_per": 30, "max_t": 10000, "repetitions": 100},
+    {"name": "7 agentes long run", "num_agents": 7, "width": 10,
+     "height": 10, "dirty_per": 30, "max_t": 10000, "repetitions": 100},
+    {"name": "10 agentes long run", "num_agents": 10, "width": 10,
+     "height": 10, "dirty_per": 30, "max_t": 10000, "repetitions": 100},
 ]
 
 OUTPUT_FILE = "resultados_pruebas"
 
 COLUMNS = ["test", "run", "seed", "num_agents", "width", "height",
            "dirty_per", "max_t", "execution_time", "cleaned_percentage",
-           "remaining_dirty_cells", "total_moves", "all_clean"]
+           "remaining_dirty_cells", "total_moves", "all_clean",
+           "run_time_s"]
 
 
 def run_test(test, run, seed):
+    start_time = time.perf_counter()
+
     model = CleaningModel(
         dirty_per=test["dirty_per"],
         max_t=test["max_t"],
@@ -30,6 +44,8 @@ def run_test(test, run, seed):
     )
     while model.running:
         model.step()
+
+    run_time = time.perf_counter() - start_time
 
     row = {
         "test": test["name"],
@@ -42,12 +58,13 @@ def run_test(test, run, seed):
         "max_t": test["max_t"],
     }
     row.update(model.get_stats())
+    row["run_time_s"] = round(run_time, 6)
     return row
 
 
 def run_all(tests):
     '''Runs all tests and returns the list of rows'''
-    
+
     rows = []
     for test in tests:
         for run in range(1, test["repetitions"] + 1):
@@ -65,8 +82,10 @@ def save_csv(rows, path):
         writer.writerows(rows)
     print("CSV guardado en", path)
 
+
 def main():
     rows = run_all(TESTS)
     save_csv(rows, OUTPUT_FILE + ".csv")
+
 
 main()
