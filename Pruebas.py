@@ -1,6 +1,6 @@
 import csv
 import time
-from Modelo import CleaningModel
+from Model import CleaningModel
 
 TESTS = [
     {"name": "1 agente", "num_agents": 1, "width": 10, "height": 10,
