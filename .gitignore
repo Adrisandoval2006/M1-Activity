@@ -227,3 +227,4 @@ __marimo__/
 .venv/
 *.mda.tar
 .ipynb_checkpoints/
+.DS_Store
