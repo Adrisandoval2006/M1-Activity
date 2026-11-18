@@ -17,24 +17,25 @@ DIRECTIONS = [
 ]
 
 class RobotAgent(mesa.Agent):
-
-    # Initializes the robot and its movement counter.
-    # Parameters:
-    # uniqueId: Unique identifier of the robot.
-    # model: Model containing the robot.
+    # Initializes the robot's individual counters.
+    # Parameters: model: Simulation model containing this robot.
     # Returns: None.
     def __init__(self, model):
         super().__init__(model)
         self.movements = 0
+        self.cellsCleaned = 0
+        self.actions = 0
 
-    # Cleans the current cell or attempts a random movement.
+    # Cleans the current cell or attempts one random movement.
     # Parameters: None.
     # Returns: None.
     def step(self):
+        self.actions += 1
         currentPos = self.pos
 
         if currentPos in self.model.dirtyCells:
             self.model.dirtyCells.remove(currentPos)
+            self.cellsCleaned += 1
         else:
             dx, dy = self.random.choice(DIRECTIONS)
             nextPos = (currentPos[0] + dx, currentPos[1] + dy)

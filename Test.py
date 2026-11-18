@@ -1,5 +1,5 @@
 """
-Runs  cleaning robot experiments and saves results.
+Runs cleaning robot experiments and saves results.
 Authors: Adriana Sandoval Santos - A01667445
          Marbella Barba De los Santos - A01660946
          Javier Padilla Marcial - A01660945
@@ -12,41 +12,32 @@ import csv
 from Model import CleaningModel
 
 TESTS = [
-    {"name": "1 agent", "numAgents": 1, "width": 10,
-     "height": 10, "dirtyPercentage": 30,
-     "maxSteps": 100, "repetitions": 100},
-
-    {"name": "5 agents", "numAgents": 5, "width": 10,
-     "height": 10, "dirtyPercentage": 30,
-     "maxSteps": 100, "repetitions": 100},
-
-    {"name": "7 agents", "numAgents": 7, "width": 10,
-     "height": 10, "dirtyPercentage": 30,
-     "maxSteps": 100, "repetitions": 100},
-
-    {"name": "10 agents", "numAgents": 10, "width": 10,
-     "height": 10, "dirtyPercentage": 30,
-     "maxSteps": 100, "repetitions": 100}
+    {"name": f"{count} agents", "numAgents": count, "width": 10,
+     "height": 10, "dirtyPercentage": 30, "maxSteps": 100,
+     "repetitions": 100}
+    for count in (1, 5, 7, 10)
 ]
 
 OUTPUT_FILE = "test_results.csv"
+AGENT_OUTPUT_FILE = "agent_results.csv"
 
 COLUMNS = [
-    "test", "run", "seed", "numAgents",
-    "width", "height", "dirtyPercentage",
-    "maxSteps", "executionTime",
-    "cleanedPercentage", "remainingDirtyCells",
-    "totalMoves", "allClean"
+    "test", "run", "seed", "numAgents", "width", "height",
+    "dirtyPercentage", "maxSteps", "executionTime", "completionTime",
+    "cleanedPercentage", "remainingDirtyCells", "totalMoves", "allClean"
 ]
 
-# Executes one simulation with the specified parameters.
-# Parameters:
-# test: Dictionary containing experiment settings.
-# run: Current repetition number.
-# seed: Random seed for reproducibility.
-# Returns: Dictionary with simulation statistics.
-def runTest(test, run, seed):
+AGENT_COLUMNS = [
+    "test", "run", "seed", "numAgents", "agentId",
+    "activeSteps", "movements", "cellsCleaned"
+]
 
+
+# Runs one experiment and collects overall and per-robot results.
+# Parameters: test: Experiment configuration; run: Repetition index.
+# seed: Random seed for reproducibility.
+# Returns: Tuple containing one summary row and individual robot rows.
+def runTest(test, run, seed):
     model = CleaningModel(
         dirtyPercentage=test["dirtyPercentage"],
         maxSteps=test["maxSteps"],
@@ -59,62 +50,85 @@ def runTest(test, run, seed):
     while model.running:
         model.step()
 
-    row = {
+    summary = {
         "test": test["name"],
         "run": run,
         "seed": seed,
         "numAgents": test["numAgents"],
         "width": test["width"],
         "height": test["height"],
-        "dirtyPercentage": test["dirtyPercentage"],
-        "maxSteps": test["maxSteps"]
+        "dirtyPercentage": test["dirtyPercentage"]
     }
 
-    row.update(model.getStats())
+    summary.update(model.getStats())
 
-    return row
+    agentRows = []
 
-# Runs all experiments and collects their results.
-# Parameters:
-# tests: List of experiment configurations.
-# Returns: List of dictionaries containing results.
+    for agentStats in model.getAgentStats():
+        agentRow = {
+            "test": test["name"],
+            "run": run,
+            "seed": seed,
+            "numAgents": test["numAgents"]
+        }
+
+        agentRow.update(agentStats)
+        agentRows.append(agentRow)
+
+    if sum(row["movements"] for row in agentRows) != summary["totalMoves"]:
+        raise ValueError(
+            "Individual movements do not match total movements"
+        )
+
+    return summary, agentRows
+
+
+# Runs every configured experiment and collects all results.
+# Parameters: tests: List of experiment configurations.
+# Returns: Tuple containing summary rows and per-robot rows.
 def runAll(tests):
-
-    rows = []
+    summaries = []
+    agentRows = []
 
     for test in tests:
         for run in range(1, test["repetitions"] + 1):
             seed = test.get("seedStart", 0) + run - 1
-            rows.append(runTest(test, run, seed))
+
+            summary, robotRows = runTest(test, run, seed)
+
+            summaries.append(summary)
+            agentRows.extend(robotRows)
 
         print(
-            f"Test '{test['name']}' completed "
-            f"({test['repetitions']} runs)"
+            f"Completed {test['name']}: "
+            f"{test['repetitions']} runs"
         )
 
-    return rows
+    return summaries, agentRows
 
-# Saves experiment results to a CSV file.
-# Parameters:
-# rows: List of result dictionaries.
-# path: Output file location.
+
+# Writes a list of dictionaries to a CSV file.
+# Parameters: rows: Results to save; path: CSV destination.
+# columns: Ordered CSV column names.
 # Returns: None.
-def saveCsv(rows, path):
-
+def saveCsv(rows, path, columns=COLUMNS):
     with open(path, "w", newline="", encoding="utf-8") as file:
-        writer = csv.DictWriter(file, fieldnames=COLUMNS)
+        writer = csv.DictWriter(file, fieldnames=columns)
         writer.writeheader()
         writer.writerows(rows)
 
-    print("CSV saved to:", path)
+    print("Saved:", path)
 
-# Executes all experiments and exports their results.
+
+# Runs all experiments and saves two CSV files.
 # Parameters: None.
 # Returns: None.
 def main():
+    summaries, agentRows = runAll(TESTS)
 
-    rows = runAll(TESTS)
-    saveCsv(rows, OUTPUT_FILE)
+    saveCsv(summaries, OUTPUT_FILE, COLUMNS)
+    saveCsv(agentRows, AGENT_OUTPUT_FILE, AGENT_COLUMNS)
+
 
 if __name__ == "__main__":
     main()
